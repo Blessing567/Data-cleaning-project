@@ -1,0 +1,35 @@
+ import pandas as pd
+  import numpy as np
+
+# Create a "dirty" dataset
+data = {
+    # Numeric issues: strings, extra symbols, out-of-range
+    "age": ["25", "30yrs", "NaN", "-5", "200", "40", None],
+    "income": ["$2000", "3000", "N/A", "4000", "5000", "unknown", "3500"],
+    
+    # Categorical issues: inconsistent case, invalid category, mapping needed
+    "gender": ["Male", "female", "FEMALE", "M", "male", "f", None],
+    "education_level": [1, 2, 3, 1, "2", 5, None],
+    
+    # Membership constraint issue
+    "tier": ["Gold", "Bronze", "brnz", "Ultimate", None, "Silver", "gold"],
+    
+    # Cross-field validation: sum of components vs total
+    "economy": [50, 60, 70, 80, 20, 30, 40],
+    "business": [5, 10, 15, 5, 2, 3, 4],
+    "first_class": [2, 5, 0, 1, 0, 1, 2],
+    "total_passengers": [57, 75, 85, 86, 22, 34, 46],  # some totals are incorrect
+    
+    # Phone number issues: inconsistent formats, symbols, missing
+    "phone": ["0812345678", "+234812345678", "234812345678", "0-812-345-678", None, "08012345678", "12345"],
+    
+    # Honorifics in names
+    "name": ["Mr. John Doe", "Ms Jane Smith", "Dr. Alex Johnson", "Mrs. Emily Clark", None, "Prof. Mike Brown", "Miss Anna Lee"],
+    
+    # Duplicate row example
+    "customer_id": [1, 2, 3, 4, 5, 3, 1]
+}
+
+dirty_df = pd.DataFrame(data)
+print(dirty_df)
+
