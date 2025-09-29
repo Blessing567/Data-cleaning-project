@@ -6,36 +6,53 @@ It is designed for data analysts, data scientists, and students who want to ensu
 
 
 🚀 Project Motivation
+📌 Motivation
 
-As a data analyst, I’ve realized that 80–90% of the work is data preparation, not the “cool” modeling or visualization. Tasks like handling missing values, fixing outliers, validating categories, and cleaning text are repetitive and time-consuming.
+* Data scientists spend 80–90% of their time cleaning data before analysis or modeling.
+* This project was built to:
 
-This project was created to solve that challenge by developing a set of reusable, modular data cleaning functions. Instead of rewriting the same cleaning logic for every dataset, I can now simply import the right function and apply it.
+* Automate repetitive cleaning steps.
 
-Why this matters:
+* Provide reusable, well-structured functions for both numerical and categorical data.
 
-⏳ Time Efficiency → Saves hours of repetitive work by automating common cleaning tasks.
+* Show practical computer science principles such as modular design, abstraction, and reusability.
 
-🛠️ Reusability → Functions are modular and can be applied across projects.
+# 📂 Project Structure
+* Data/ → contains the raw or “dirty” dataset used for cleaning.
 
-✅ Consistency → Ensures standardized, high-quality cleaning every time.
+* Example: Dirty_Data.py holds the initial dataset used in the workflow.
 
-📈 Industry Relevance → Matches real-world workflows where analysts constantly prepare raw data for decision-making.
+* numerical_values/ → contains Python modules that clean and validate numeric-related columns.
 
-By reducing the time spent on repetitive cleaning, I can focus more on analysis and insights, which is the ultimate goal of a data analyst.
+* Remove_strings.py → removes unwanted characters and converts strings to numeric values.
 
-# 📂 Data Cleaning Modules
+* duplicates.py → identifies and removes duplicate rows.
 
-The toolkit is organized into separate modules for different tasks:
+* cross_field_validation.py → checks consistency between related fields (e.g., sum of components vs. total).
 
-numeric_cleaning.py → Functions for handling numeric issues (outliers, missing values, type conversion).
+* detecting_outliers.py → detects and handles outliers using statistical methods (like IQR).
 
-categorical_cleaning.py → Functions for handling categorical data (honourifics, membership constraints, normalization).
+* out_of_range.py → caps values to fall within valid ranges (e.g., age between 0 and 100).
 
-regex_utils.py → Regex-based functions for cleaning formatting and unwanted strings.
+* phone.py → standardizes phone number formats.
 
-data_quality_utils.py → General utilities (missing detection, duplicate handling, cross-field validation).
+* categorical_functions/ → contains modules for handling categorical data issues.
 
-tests/ → Contains test scripts to validate each function.
+* honourifics.py → removes titles/honorifics (Mr., Dr., etc.) from names.
+
+* membership_constraint.py → validates that values belong to a predefined set (e.g., tiers = Gold, Silver).
+
+* numerical_to_category.py → converts numerical codes into category labels.
+
+* functions/ → used for testing or utility scripts.
+
+* full_cleaning_workflow.py → the main script that puts everything together.
+
+* Loads the dirty dataset.
+
+* Calls the different cleaning functions step by step.
+
+* Outputs the final cleaned dataset into a data/cleaned/ folder.
 
 # 📌 Features
 ## 🧹 Data Cleaning Process
@@ -191,7 +208,7 @@ Outliers – Identifying unusual values using methods like Interquartile Range (
     if __name__ == "__main__":
     print("This script contains only the handle_duplicates function. Pass a DataFrame to it externally.")
   ~~~
-* Out of Range Data set
+* Out of Range Data set in numerical data
 
   ~~~ python
   mport pandas as pd
@@ -326,69 +343,178 @@ if __name__ == "__main__":
 * the function takes messy phone numbers and standardizes them into either local or international
 
    ~~~ python
-   import pandas as pd
-  import re
-
-  # Function to normalize phone numbers for NG, US, and UK
   def clean_phone_number(phone, keep_local=True, country="NG"):
-    """
-    Standardizes phone numbers to either local format or international format.
-    
-    Parameters:
-    - phone: str, the phone number to clean
-    - keep_local: bool, True to return local format (e.g., 08123456789), 
-                  False to return international format (e.g., +2348123456789)
-    - country: str, country code ('NG', 'US', 'UK') to determine formatting rules
-    
-    Returns:
-    - str: normalized phone number, or "Invalid" if it cannot be parsed
-    """
-    
-    # Remove all non-digit characters (spaces, dashes, parentheses)
-    phone = re.sub(r"\D", "", phone)
-    
-    # Nigeria phone number rules
+    import re
+    # remove spaces, dashes, brackets, etc.
+    phone = re.sub(r"\D", "", str(phone)) if phone else ""
+
+    # Nigeria
     if country == "NG":
         if phone.startswith("0") and len(phone) == 11:
-            # Already local format
             return phone if keep_local else "+234" + phone[1:]
         elif phone.startswith("234") and len(phone) == 13:
-            # International without plus sign
             return ("0" + phone[3:]) if keep_local else "+" + phone
         elif phone.startswith("+234"):
-            # International with plus sign
             return ("0" + phone[4:]) if keep_local else phone
-    
-    # US phone number rules
+
+    # US
     elif country == "US":
         if len(phone) == 10:
-            # Local format
             return phone if keep_local else "+1" + phone
         elif phone.startswith("1") and len(phone) == 11:
-            # International without plus
             return phone[1:] if keep_local else "+" + phone
         elif phone.startswith("+1"):
-            # International with plus
             return phone[2:] if keep_local else phone
-    
-    # UK phone number rules
+
+    # UK
     elif country == "UK":
         if phone.startswith("0") and len(phone) == 11:
-            # Local format
             return phone if keep_local else "+44" + phone[1:]
         elif phone.startswith("44") and len(phone) == 12:
-            # International without plus
             return ("0" + phone[2:]) if keep_local else "+" + phone
         elif phone.startswith("+44"):
-            # International with plus
             return ("0" + phone[3:]) if keep_local else phone
-    
-    # If it doesn’t match any known pattern
 
+    return "Invalid
    ~~~
 
 Reusable Functions – Each process is wrapped in reusable Python functions, making data cleaning faster and easier for future datasets.
 
-📖 How to Use
+#📖 How to Use
+## Data Set needed for cleaning
+~~~python
+import pandas as pd
+import numpy as np
+
+# Create a "dirty" dataset
+data = {
+    # Numeric issues: strings, extra symbols, out-of-range
+    "age": ["25", "30yrs", "NaN", "-5", "200", "40", None],
+    "income": ["$2000", "3000", "N/A", "4000", "5000", "unknown", "3500"],
+    
+    # Categorical issues: inconsistent case, invalid category, mapping needed
+    "gender": ["Male", "female", "FEMALE", "M", "male", "f", None],
+    "education_level": [1, 2, 3, 1, "2", 5, None],
+    
+    # Membership constraint issue
+    "tier": ["Gold", "Bronze", "brnz", "Ultimate", None, "Silver", "gold"],
+    
+    # Cross-field validation: sum of components vs total
+    "economy": [50, 60, 70, 80, 20, 30, 40],
+    "business": [5, 10, 15, 5, 2, 3, 4],
+    "first_class": [2, 5, 0, 1, 0, 1, 2],
+    "total_passengers": [57, 75, 85, 86, 22, 34, 46],  # some totals are incorrect
+    
+    # Phone number issues: inconsistent formats, symbols, missing
+    "phone": ["0812345678", "+234812345678", "234812345678", "0-812-345-678", None, "08012345678", "12345"],
+    
+    # Honorifics in names
+    "name": ["Mr. John Doe", "Ms Jane Smith", "Dr. Alex Johnson", "Mrs. Emily Clark", None, "Prof. Mike Brown", "Miss Anna Lee"],
+    
+    # Duplicate row example
+    "customer_id": [1, 2, 3, 4, 5, 3, 1]
+}
+
+data = pd.DataFrame(data)
+print(data)
+
+
+~~~
+# full_cleaning_workflow.py
+* This script serves as the main workflow that ties together all individual data-cleaning modules. Instead of writing long cleaning logic inside one file, the project organizes cleaning tasks into modular Python files. Each module handles a specific type of cleaning (numerical, categorical, or text-based).
+  * pandas – used to load, transform, and save tabular data.
+  * os – provides utilities for handling file paths, making the workflow more portable across operating systems.
+~~~ python
+import pandas as pd
+import os
+~~~
+
+# Module Importation in full_cleaning_workflow.py
+
+📂 Module Importation
+
+* This project is structured into modular components. Each cleaning function is stored in its own script, organized by type:
+
+* numerical_values/ → functions for handling numeric data (e.g., removing strings, detecting outliers, range capping, cross-field validation).
+
+* categorical_functions/ → functions for handling categorical data (e.g., removing honorifics from names, validating membership tiers, converting numbers to categories).
+
+* In the main workflow (full_cleaning_workflow.py), we import only the necessary functions:
+~~~ python
+# Import cleaning modules
+from numerical_values.cross_field_validation import handle_crossfield_issues
+from numerical_values.Remove_strings import Remove_strings
+from numerical_values.duplicates import handle_duplicates
+from numerical_values.phone import clean_phone_number
+from numerical_values.detecting_outliers import handle_outliers_iqr
+from numerical_values.out_of_range import cap_out_of_range
+from categorical_functions.membership_constraint import membership_constraint
+from categorical_functions.honourifics import remove_honorifics
+from categorical_functions.numerical_to_category import numerical_column_to_category
+~~~
+# import Dataset and Call cleaning functions
+~~~ python
+# Step 1: Load the "dirty" dataset
+from Data.Dirty_Data import data
+
+dirty_df = data.copy()  # always work on a copy
+
+# Step 2: Clean numeric columns (remove strings, convert to numeric)
+dirty_df = Remove_strings(dirty_df, columns=["age", "income"])
+
+# Step 3: Fix outliers using Interquartile Range (IQR)
+dirty_df = handle_outliers_iqr(dirty_df, columns="age")
+dirty_df = handle_outliers_iqr(dirty_df, columns="income")
+
+# Step 4: Cap numeric values to valid ranges (example: age 0–100)
+dirty_df = cap_out_of_range(dirty_df, column="age", min_val=0, max_val=100)
+
+# Step 5: Handle duplicates based on customer_id
+dirty_df = handle_duplicates(dirty_df, subset=["customer_id"])
+
+# Step 6: Normalize phone numbers and remove honorifics from names
+dirty_df["phone"] = dirty_df["phone"].apply(lambda x: clean_phone_number(x))
+dirty_df = remove_honorifics(dirty_df, column="name")
+
+# Step 7: Handle membership constraints for "tier"
+valid_tiers = ["Bronze", "Silver", "Gold", "Platinum"]
+dirty_df = membership_constraint(
+    dirty_df,
+    column="tier",
+    valid_values=valid_tiers,
+    action="replace",
+    replace_value="Unknown"
+)
+
+# Step 8: Cross-field validation (e.g., passengers)
+dirty_df = handle_crossfield_issues(
+    dirty_df,
+    component_cols=["economy", "business", "first_class"],
+    total_col="total_passengers",
+    action="impute"  # Fill incorrect totals
+)
+
+# Step 9: Convert numeric-like columns to category if needed
+dirty_df = numerical_column_to_category(dirty_df, "education_level")
+~~~
+* Save output as an excel file in an output folder
+~~~python
+# Step 10: Save the cleaned dataset to the output folder
+output_folder = "data/cleaned"
+os.makedirs(output_folder, exist_ok=True)
+
+# Save as CSV
+csv_path = os.path.join(output_folder, "cleaned_dataset.csv")
+dirty_df.to_csv(csv_path, index=False)
+
+# Save as Excel
+excel_path = os.path.join(output_folder, "cleaned_dataset.xlsx")
+dirty_df.to_excel(excel_path, index=False)
+
+print(f"✅ Cleaned dataset saved to:\n- {csv_path}\n- {excel_path}")
+~~~
+
+
+
 
 
